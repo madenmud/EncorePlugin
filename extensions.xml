@@ -7,7 +7,7 @@
 		    <plugin name="RemoteLibraryClone" version="1.0" minTarget="7.5" maxTarget="*" >
             <title lang="EN">RemoteLibray for Encore</title>      
             <desc lang="EN">RemoteLibrary for Encore</desc>
-            <url>http://pcfi.dothome.co.kr/RemoteLIbrary.zip</url>
+            <url>http://pcfi.dothome.co.kr/RemoteLibrary.zip</url>
             <link>https://bitbucket.org/madenmud/encoreplugin</link>
             <sha>fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f</sha>  
             <creator>madenmud</creator>
