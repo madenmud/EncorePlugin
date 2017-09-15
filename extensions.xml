@@ -1,16 +1,27 @@
 <?xml version="1.0"?>
 <extensions>
-  <details>
-   <title lang="EN">Encore Repo</title>
-  </details>
-  <plugins>
-    <plugin name="RemoteLibraryClone" maxTarget="*" minTarget="7.5" version="1.0">
-    	 <sha>fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f</sha>  
-    	 <url>http://bitbucket.org/madenmud/encoreplugin/raw/340c4684f9fbf32a259def03d2f9bb69555cd2c3/RemoteLibrary.zip</url>
-      <desc lang="EN">RemoteLibrary for Encore</desc>
-      <title lang="EN">RemoteLibray for Encore</title>      
-			<link>https://bitbucket.org/madenmud/encoreplugin</link>
-			<creator>madenmud</creator>
-    </plugin>
-  </plugins>
+    <details>
+   	  <title lang="EN">Encore Repo</title>
+    </details>
+    <plugins>
+        <plugin name="SqueezeCloud" version="0.9.3" minTarget="7.5" maxTarget="*">
+            <title lang="EN">SqueezeCloud</title>
+            <desc lang="EN">Browse, search and play urls from soundcloud</desc>
+            <url>http://danielvijge.github.io/SqueezeCloud/SqueezeCloud-0.9.3.zip</url>
+            <link>https://github.com/danielvijge/SqueezeCloud</link>
+            <sha>ca2ae16b9802cdfa63b9b669acc2fcf99b309f3e</sha>
+            <creator>Robert Siebert, Daniel Vijge, Robert Gibbon, David Blackman</creator>
+        </plugin>
+        
+        
+		    <plugin name="RemoteLibraryClone" version="1.0" minTarget="7.5" maxTarget="*" >
+            <title lang="EN">RemoteLibray for Encore</title>      
+            <desc lang="EN">RemoteLibrary for Encore</desc>
+            <url>https://bitbucket.org/madenmud/encoreplugin/raw/340c4684f9fbf32a259def03d2f9bb69555cd2c3/RemoteLibrary.zip</url>
+            <link>https://bitbucket.org/madenmud/encoreplugin</link>
+            <sha>fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f</sha>  
+            <creator>madenmud</creator>
+		    </plugin>
+        
+    </plugins>
 </extensions>
