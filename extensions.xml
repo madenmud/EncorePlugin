@@ -1,6 +1,11 @@
 <extensions>
+  <details>
+   <title lang="EN">Encore Repo</title>
+  </details>
   <plugins>
-    <plugin name="RemoteLibraryClone" creator="Logitech" email="madenmud@gmail.com" maxTarget="*" minTarget="7.7" sha="fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f"  url="https://bitbucket.org/madenmud/encoreplugin/raw/340c4684f9fbf32a259def03d2f9bb69555cd2c3/RemoteLibrary.zip" version="1.0">
+    <plugin name="RemoteLibraryClone" maxTarget="*" minTarget="7.5" version="1.0">
+    	 <sha>fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f</sha>  
+    	 <url>http://bitbucket.org/madenmud/encoreplugin/raw/340c4684f9fbf32a259def03d2f9bb69555cd2c3/RemoteLibrary.zip</url>
       <desc lang="EN">RemoteLibrary for Encore</desc>
       <title lang="EN">RemoteLibray for Encore</title>
     </plugin>
