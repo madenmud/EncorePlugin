@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <extensions>
   <details>
    <title lang="EN">Encore Repo</title>
@@ -7,7 +8,9 @@
     	 <sha>fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f</sha>  
     	 <url>http://bitbucket.org/madenmud/encoreplugin/raw/340c4684f9fbf32a259def03d2f9bb69555cd2c3/RemoteLibrary.zip</url>
       <desc lang="EN">RemoteLibrary for Encore</desc>
-      <title lang="EN">RemoteLibray for Encore</title>
+      <title lang="EN">RemoteLibray for Encore</title>      
+			<link>https://bitbucket.org/madenmud/encoreplugin</link>
+			<creator>madenmud</creator>
     </plugin>
   </plugins>
 </extensions>
