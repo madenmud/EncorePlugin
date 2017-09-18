@@ -5,10 +5,10 @@
 	<module>Plugins::RemoteLibraryEncore::Plugin</module>
 	<version>1.0</version>
 	<description>PLUGIN_REMOTE_LIBRARY_MODULE_NAME_DESC</description>
-	<creator>Logitech</creator>
+	<creator>Sunghyun</creator>
 	<defaultState>enabled</defaultState>
-	<homepageURL>http://www.mysqueezebox.com/</homepageURL>
-	<icon>plugins/RemoteLibraryEncore/html/icon.png</icon>
+	<homepageURL>http://duduo.club/</homepageURL>
+	<icon>plugins/RemoteLibrary/html/icon.png</icon>
 	<optionsURL>plugins/RemoteLibrary/settings.html</optionsURL>
 	<playerMenu>BROWSE_MUSIC</playerMenu>
 	<targetApplication>
