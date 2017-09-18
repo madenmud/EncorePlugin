@@ -3,15 +3,24 @@
     <details>
    	  <title lang="EN">Encore Repo</title>
     </details>
-    <plugins>       
-		    <plugin name="RemoteLibraryClone" version="1.0" minTarget="7.5" maxTarget="*" >
-            <title lang="EN">RemoteLibray for Encore</title>      
-            <desc lang="EN">RemoteLibrary for Encore</desc>
-            <url>http://pcfi.dothome.co.kr/RemoteLibrary.zip</url>
+    <plugins>
+		    <plugin name="RemoteLibraryEncore" version="1.0" minTarget="7.5" maxTarget="*" >
+            <title lang="EN">RemoteLibray for Encore Modified</title>
+            <desc lang="EN">RemoteLibrary for Encore Modified</desc>
+            <url>http://pcfi.dothome.co.kr/RemoteLib.zip</url>
             <link>https://bitbucket.org/madenmud/encoreplugin</link>
-            <sha>fb60ae0e4cd561b8a2522acd8c22f0d48a2ebe7f</sha>  
-            <creator>madenmud</creator>
+            <sha>d3ec9bee5e9d54958091cfc0d7035fbfef4cc99c</sha>
+            <creator>Sunghyun</creator>
 		    </plugin>
-        
+
+		    <plugin name="RemoteLibrary" version="1.0" minTarget="7.5" maxTarget="*" >
+            <title lang="EN">RemoteLibray for Encore</title>
+            <desc lang="EN">RemoteLibrary for Encore</desc>
+            <url>http://pcfi.dothome.co.kr/RemoteLibEncore.zip</url>
+            <link>https://bitbucket.org/madenmud/encoreplugin</link>
+            <sha>9b6c76130fbe69cd8672ef5e0ef7bb36749b6503</sha>
+            <creator>Sunghyun</creator>
+		    </plugin>
+
     </plugins>
 </extensions>
