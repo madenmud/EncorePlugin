@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::Plugin;
+package Plugins::RLClone::Plugin;
 
 # Logitech Media Server Copyright 2001-2016 Logitech.
 # This program is free software; you can redistribute it and/or
@@ -7,7 +7,7 @@ package Plugins::RemoteLibraryEncore::Plugin;
 
 =pod
 
-This plugin will give access to "remote libraries". This can be another Logitech Media 
+This plugin will give access to "remote libraries". This can be another Logitech Media
 Server, or some UPnP/DLNA server.
 
 3rd party plugins can hook into this menu by registering their own browse menu. During
@@ -15,10 +15,10 @@ their plugin initialization they call:
 
 	sub init {
 		my $class = shift;
-		
+
 		... # set up your plugin here
-	
-		Plugins::RemoteLibraryEncore::Plugin->addRemoteLibraryEncoreProvider($class);
+
+		Plugins::RLClone::Plugin->addRLCloneProvider($class);
 	}
 
 The plugin must provide a method getLibraryList(), which would return menu items for
@@ -37,10 +37,10 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(cstring string);
 
-my $prefs = preferences('plugin.remotelibraryencore');
+my $prefs = preferences('plugin.rlclone');
 
 my $log = Slim::Utils::Log->addLogCategory( {
-	'category'     => 'plugin.remotelibraryencore',
+	'category'     => 'plugin.rlclone',
 	'defaultLevel' => 'ERROR',
 	'description'  => 'PLUGIN_REMOTE_LIBRARY_MODULE_NAME',
 } );
@@ -59,42 +59,42 @@ sub initPlugin {
 			return join( ', ', string('PLUGIN_REMOTE_LIBRARY_IGNORE_MENU_DEFAULT'), grep { $ignoreItems{$_} == 1 } keys %ignoreItems );
 		},
 	});
-	
+
 	# some sanity checks on remote LMS URLs
 	$prefs->setChange(sub {
 		my ($prefname, $newValue) = @_;
-		
+
 		$newValue = [ map {
 			$_ = 'http://' . $_ unless m|^http://|i;
 			$_ .= ':9000' unless m|:\d+$|;
 			$_;
 		} @{ $newValue || [] }];
 	}, 'remoteLMS');
-	
+
 	$prefs->setValidate(sub {
 		# localhost is not allowed, as players wouldn't see it
 		return 0 if grep /localhost|127\.0\.0\.1/, @{ $_[1] || [] };
 		return 1;
 	}, 'remoteLMS');
-	
+
 	if ( $prefs->get('useLMS') ) {
-		require Plugins::RemoteLibraryEncore::LMS;
-		Plugins::RemoteLibraryEncore::LMS->init();
+		require Plugins::RLClone::LMS;
+		Plugins::RLClone::LMS->init();
 	}
 
 	if ( $prefs->get('useUPnP') ) {
-		require Plugins::RemoteLibraryEncore::UPnP;
-		Plugins::RemoteLibraryEncore::UPnP->init()
+		require Plugins::RLClone::UPnP;
+		Plugins::RLClone::UPnP->init()
 	}
-	
+
 	if ( main::WEBUI ) {
-		require Plugins::RemoteLibraryEncore::Settings;	
-		Plugins::RemoteLibraryEncore::Settings->new;
+		require Plugins::RLClone::Settings;
+		Plugins::RLClone::Settings->new;
 	}
-	
+
 	$class->SUPER::initPlugin(
 		feed   => \&handleFeed,
-		tag    => 'selectRemoteLibraryEncore',
+		tag    => 'selectRLClone',
 		node   => 'myMusic',
 		menu   => 'browse',
 		weight => 110,
@@ -103,12 +103,12 @@ sub initPlugin {
 
 sub getDisplayName { 'PLUGIN_REMOTE_LIBRARY_MODULE_NAME' }
 
-sub addRemoteLibraryEncoreProvider {
+sub addRLCloneProvider {
 	my ($class, $provider) = @_;
 	$remoteLibraryProviders{$provider}++ if $provider;
 }
 
-sub removeRemoteLibraryEncoreProvider {
+sub removeRLCloneProvider {
 	my ($class, $provider) = @_;
 	delete $remoteLibraryProviders{$provider} if $provider;
 }
@@ -117,16 +117,16 @@ sub handleFeed {
 	my ($client, $cb, $args) = @_;
 
 	my $items = [];
-	
-	# there's a bug in SP which would block the menu when we re-enter a menu with a text area 
+
+	# there's a bug in SP which would block the menu when we re-enter a menu with a text area
 	# after we had left from a menu item other than the first one...
 	my $isSqueezeplay = ($client && $client->controllerUA && $client->controllerUA =~ /^SqueezePlay/) ? 1 : 0;
-	
+
 	foreach my $provider (keys %remoteLibraryProviders) {
 		next unless $provider->can('getLibraryList');
 		push @$items, @{ $provider->getLibraryList() || [] };
 	}
-		
+
 	if ( !scalar @$items ) {
 		$items = [{
 			name => cstring($client, 'PLUGIN_REMOTE_LIBRARY_NOT_FOUND'),
@@ -143,7 +143,7 @@ sub handleFeed {
 			};
 		}
 	}
-	
+
 	$cb->({
 		items => $items
 	});

@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::ProtocolHandler;
+package Plugins::RLClone::ProtocolHandler;
 
 use strict;
 use base qw(Slim::Player::Protocols::HTTP);
@@ -10,7 +10,7 @@ use Slim::Networking::SimpleAsyncHTTP;
 use Slim::Utils::Cache;
 use Slim::Utils::Log;
 
-my $log = logger('plugin.remotelibraryencore');
+my $log = logger('plugin.rlclone');
 
 my $cache = Slim::Utils::Cache->new;
 
@@ -20,7 +20,7 @@ sub new {
 	my $args   = shift;
 
 	my $client = $args->{client};
-	
+
 	my $song      = $args->{'song'};
 	my $streamUrl = $song->streamUrl() || return;
 
@@ -68,7 +68,7 @@ sub scanUrl {
 
 sub canDirectStreamSong {
 	my ( $class, $client, $song ) = @_;
-	
+
 	# We need to check with the base class (HTTP) to see if we
 	# are synced or if the user has set mp3StreamingMethod
 	return $class->SUPER::canDirectStream( $client, $song->streamUrl(), $class->getFormatForURL() );
@@ -76,23 +76,23 @@ sub canDirectStreamSong {
 
 sub getNextTrack {
 	my ( $class, $song, $successCb, $errorCb ) = @_;
-	
+
 	my $url = $song->track()->url;
 	my ($baseUrl, $uuid, $id, $file) = _parseUrl($url);
 
 	$url = $baseUrl . join('/', 'music', $id, $file);
-	
+
 	main::DEBUGLOG && $log->is_debug && $log->debug("Setting streaming URL: $url");
-	
+
 	$song->streamUrl($url);
-	
+
 	$successCb->();
 }
 
 sub getMetadataFor {
 	my ( $class, $client, $url, $forceCurrent ) = @_;
-	
-	my $meta = $cache->get('remotelibraryencore_' . $url);
+
+	my $meta = $cache->get('rlclone_' . $url);
 	my $song = $client->playingSong();
 
 	my ($baseUrl, $uuid, $id, $file) = _parseUrl($url);
@@ -100,7 +100,7 @@ sub getMetadataFor {
 	if ($song && $song->streamUrl && $song->streamUrl eq $url) {
 		$song->streamUrl($baseUrl . join('/', 'music', $id, $file));
 	}
-	
+
 	if ( !$meta && !$client->pluginData('fetchingMetadata') ) {
 		$client->pluginData( fetchingMetadata => 1 );
 
@@ -108,9 +108,9 @@ sub getMetadataFor {
 		my $need = {
 			$id => $url
 		};
-		
+
 		my $request;
-			
+
 		# we'll have to use one songinfo query per remote track
 		if ( $id =~ /^-/ ) {
 			$request = ['songinfo', 0, 999, 'track_id:' . $id, 'tags:acdgilortyY'];
@@ -120,18 +120,18 @@ sub getMetadataFor {
 			for my $track ( @{ Slim::Player::Playlist::playList($client) } ) {
 				my $trackURL = blessed($track) ? $track->url : $track;
 				if ( $trackURL && $trackURL =~ /$uuid/ && (my (undef, undef, $id) = _parseUrl($trackURL)) ) {
-					if ( $id && $id !~ /^-/ && !$cache->get("remotelibraryencore_$trackURL") ) {
+					if ( $id && $id !~ /^-/ && !$cache->get("rlclone_$trackURL") ) {
 						$need->{$id} = $trackURL;
 						# only fetch 50 tracks in one query
 						last if scalar keys %$need > 50;
 					}
 				}
 			}
-			
+
 			$request = ['titles', 0, 999, sprintf('search:sql=tracks.id IN (%s)', join(',', keys %$need)), 'tags:acdgilortyY'];
 		}
-		
-		Plugins::RemoteLibraryEncore::LMS->remoteRequest($uuid, 
+
+		Plugins::RLClone::LMS->remoteRequest($uuid,
 			[ '', $request ],
 			\&_gotMetadata,
 			sub {},
@@ -141,7 +141,7 @@ sub getMetadataFor {
 			},
 		);
 	}
-	
+
 	if ($meta && ref $meta && keys %$meta) {
 		$song->duration($meta->{duration}) if $song && $meta->{duration};
 
@@ -152,25 +152,25 @@ sub getMetadataFor {
 			$song->bitrate($bitrate) if $song && $bitrate;
 		}
 	}
-	
+
 	return $meta || {};
 }
 
 sub _gotMetadata {
 	my ($result, $args) = @_;
-	
+
 	my $client = $args->{client};
 	my $idUrlMap = $args->{idUrlMap};
-	
+
 	if ( !($result && ($result->{titles_loop} || $result->{songinfo_loop})) ) {
 		$log->error( 'Unexpected response data: ' . Data::Dump::dump($result) );
-		
+
 		# fill in some fake metadata to prevent looping lookups
 		$result->{titles_loop} = [ map {
 			id => $_
 		}, keys %$idUrlMap ];
 	}
-	
+
 	my @trackInfo;
 	if ($result->{titles_loop}) {
 		@trackInfo = @{$result->{titles_loop}};
@@ -186,17 +186,17 @@ sub _gotMetadata {
 
 	foreach my $meta ( @trackInfo ) {
 		next unless $meta->{id} && (my $url = $idUrlMap->{$meta->{id}});
-	
+
 		if ($meta->{coverid}) {
 			my (undef, $remote_library) = _parseUrl($url);
-			$meta->{cover} = Plugins::RemoteLibraryEncore::LMS->proxiedImageUrl({
+			$meta->{cover} = Plugins::RLClone::LMS->proxiedImageUrl({
 				'image' => delete $meta->{coverid}
 			}, $remote_library);
 		}
 
-		$cache->set('remotelibraryencore_' . $url, $meta);
+		$cache->set('rlclone_' . $url, $meta);
 	}
-	
+
 
 	if ($client) {
 		$client->pluginData( fetchingMetadata => 0 );
@@ -204,16 +204,16 @@ sub _gotMetadata {
 
 	# Update the playlist time so the web will refresh, etc
 	$client->currentPlaylistUpdateTime( Time::HiRes::time() );
-	
+
 	Slim::Control::Request::notifyFromArray( $client, [ 'newmetadata' ] );
 }
 
 sub _parseUrl {
 	my $url = shift;
-	
+
 	my ($uuid, $id, $file) = $url =~ m|lms://(.*?)/music/([\-\d]+?)/(.*)|;
-	my $baseUrl = Plugins::RemoteLibraryEncore::LMS->baseUrl($uuid);
-	
+	my $baseUrl = Plugins::RLClone::LMS->baseUrl($uuid);
+
 	return ($baseUrl || '', $uuid, $id, $file);
 }
 

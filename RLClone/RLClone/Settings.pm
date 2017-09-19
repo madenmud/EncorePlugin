@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::Settings;
+package Plugins::RLClone::Settings;
 
 # Logitech Media Server Copyright 2001-2011 Logitech.
 # This program is free software; you can redistribute it and/or
@@ -10,7 +10,7 @@ use base qw(Slim::Web::Settings);
 
 use Slim::Utils::Prefs;
 
-my $prefs = preferences('plugin.remotelibraryencore');
+my $prefs = preferences('plugin.rlclone');
 
 sub name {
 	return Slim::Web::HTTP::CSRF->protectName('PLUGIN_REMOTE_LIBRARY_MODULE_NAME');
@@ -29,8 +29,8 @@ sub handler {
 
 	if ( defined $paramRef->{pref_useLMS} && $paramRef->{pref_useLMS} && !$prefs->get('useLMS') ) {
 		# Start LMS discovery if the user enabled it
-		require Plugins::RemoteLibraryEncore::LMS;
-		Plugins::RemoteLibraryEncore::LMS->init();
+		require Plugins::RLClone::LMS;
+		Plugins::RLClone::LMS->init();
 	}
 
 	if ($paramRef->{'saveSettings'}) {
@@ -48,12 +48,12 @@ sub handler {
 
 	if ( defined $paramRef->{pref_useUPnP} && $paramRef->{pref_useUPnP} ne $prefs->get('useUPnP') ) {
 		# Shut down all UPnP activity - don't load module if it wasn't loaded yet
-		eval { Plugins::RemoteLibraryEncore::UPnP::MediaServer->shutdown() };
+		eval { Plugins::RLClone::UPnP::MediaServer->shutdown() };
 
 		# Start it up again if the user enabled it
 		if ( $paramRef->{pref_useUPnP} ) {
-			require Plugins::RemoteLibraryEncore::UPnP;
-			Plugins::RemoteLibraryEncore::UPnP->init();
+			require Plugins::RLClone::UPnP;
+			Plugins::RLClone::UPnP->init();
 		}
 	}
 

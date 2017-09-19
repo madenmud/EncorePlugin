@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::UPnP::MediaServer;
+package Plugins::RLClone::UPnP::MediaServer;
 
 # Logitech Media Server Copyright 2001-2011 Logitech.
 # This program is free software; you can redistribute it and/or
@@ -18,13 +18,13 @@ use Slim::Utils::Log;
 use Slim::Utils::Misc;
 use Slim::Utils::Prefs;
 
-use Plugins::RemoteLibraryEncore::UPnP::ControlPoint;
+use Plugins::RLClone::UPnP::ControlPoint;
 
 my %devices;
 #our $registeredCallbacks = [];
 
-my $log = logger('plugin.remotelibraryencore');
-my $prefs = preferences('plugin.remotelibraryencore');
+my $log = logger('plugin.rlclone');
+my $prefs = preferences('plugin.rlclone');
 
 # Media server model names to ignore (i.e. Rhapsody)
 my $IGNORE_RE = qr{Rhapsody}i;
@@ -33,7 +33,7 @@ sub init {
 	main::INFOLOG && $log->info('UPnP: Starting up');
 	
 	# Look for all UPnP media servers on the network
-	Plugins::RemoteLibraryEncore::UPnP::ControlPoint->search( {
+	Plugins::RLClone::UPnP::ControlPoint->search( {
 		callback   => \&foundDevice,
 		deviceType => 'urn:schemas-upnp-org:device:MediaServer:1',
 	} );
@@ -42,7 +42,7 @@ sub init {
 sub shutdown {
 	main::INFOLOG && $log->info('UPnP: Shutting down');
 	
-	Plugins::RemoteLibraryEncore::UPnP::ControlPoint->shutdown();
+	Plugins::RLClone::UPnP::ControlPoint->shutdown();
 	
 	while ( my ($udn, $device) = each %devices ) {
 		if ( main::INFOLOG && $log->is_info ) {
@@ -129,7 +129,7 @@ sub checkServerHealthError {
 	}
 	
 	# Remove the device from the control point
-	Plugins::RemoteLibraryEncore::UPnP::ControlPoint::removeDevice( $device );
+	Plugins::RLClone::UPnP::ControlPoint::removeDevice( $device );
 	
 	foundDevice( $device, 'remove' );
 }
@@ -154,7 +154,7 @@ sub loadContainer {
 		passthrough    => [ $args ],
 	);
 	
-	Plugins::RemoteLibraryEncore::UPnP::ControlPoint->browse( \%args );
+	Plugins::RLClone::UPnP::ControlPoint->browse( \%args );
 }
 
 sub gotContainer {

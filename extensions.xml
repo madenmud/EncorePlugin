@@ -4,12 +4,12 @@
    	  <title lang="EN">Encore Repo</title>
     </details>
     <plugins>
-		    <plugin name="RemoteLibraryEncore" version="1.0" minTarget="7.5" maxTarget="*" >
-            <title lang="EN">RemoteLibray for Encore Modified</title>
+		    <plugin name="RLClone" version="1.0" minTarget="7.5" maxTarget="*" >
+            <title lang="EN">RemoteLibray Clone</title>
             <desc lang="EN">RemoteLibrary for Encore Modified</desc>
-            <url>http://pcfi.dothome.co.kr/RemoteLibEncore.zip</url>
+            <url>http://pcfi.dothome.co.kr/RLClone.zip</url>
             <link>https://bitbucket.org/madenmud/encoreplugin</link>
-            <sha>24f02eb85bbd768f73146ebc71887a73</sha>
+            <sha>43f2f1b9af11ecf88e617f773c0a3eb34e482ca6</sha>
             <creator>Sunghyun</creator>
 		    </plugin>
     </plugins>

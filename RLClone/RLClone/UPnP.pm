@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::UPnP;
+package Plugins::RLClone::UPnP;
 
 # Logitech Media Server Copyright 2001-2016 Logitech.
 # This program is free software; you can redistribute it and/or
@@ -17,10 +17,10 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(cstring string);
 
-use Plugins::RemoteLibraryEncore::UPnP::MediaServer;
+use Plugins::RLClone::UPnP::MediaServer;
 
-my $prefs = preferences('plugin.remotelibraryencore');
-my $log   = logger('plugin.remotelibraryencore');
+my $prefs = preferences('plugin.rlclone');
+my $log   = logger('plugin.rlclone');
 my $cache = Slim::Utils::Cache->new;
 
 sub init {
@@ -28,22 +28,22 @@ sub init {
 
 	main::INFOLOG && $log->info("UPnP init...");
 
-	Plugins::RemoteLibraryEncore::UPnP::MediaServer->init();
+	Plugins::RLClone::UPnP::MediaServer->init();
 
-	Plugins::RemoteLibraryEncore::Plugin->addRemoteLibraryEncoreProvider($class);
+	Plugins::RLClone::Plugin->addRLCloneProvider($class);
 }
 
 sub getLibraryList {
 	return unless $prefs->get('useUPnP');
 
-	my $devices = Plugins::RemoteLibraryEncore::UPnP::MediaServer->getDevices();
+	my $devices = Plugins::RLClone::UPnP::MediaServer->getDevices();
 	my $items = [];
 
 	foreach ( values %$devices ) {
 		# don't show LMS instances if we're using remote Logitech Media Servers, too
 		next if $_->getfriendlyname =~ /^Logitech Media Server/ && $prefs->get('useLMS');
 
-		my $icon = 'plugins/RemoteLibraryEncore/html/icon.png';
+		my $icon = 'plugins/RemoteLibrary/html/icon.png';
 		my $description = eval { XMLin($_->getdescription) };
 
 		# try to get the server's icon
@@ -104,7 +104,7 @@ sub _browseUPnP {
 	}
 
 	# Async load of container
-	Plugins::RemoteLibraryEncore::UPnP::MediaServer::loadContainer( {
+	Plugins::RLClone::UPnP::MediaServer::loadContainer( {
 		udn         => $device,
 		id          => $id,
 		method      => $browse,

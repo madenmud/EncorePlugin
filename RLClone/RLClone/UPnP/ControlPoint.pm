@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::UPnP::ControlPoint;
+package Plugins::RLClone::UPnP::ControlPoint;
 
 # Logitech Media Server Copyright 2001-2016 Logitech.
 # This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@ use Slim::Networking::Select;
 use Slim::Networking::Async::Socket::UDP;
 use Slim::Utils::Log;
 
-my $log = logger('plugin.remotelibraryencore');
+my $log = logger('plugin.rlclone');
 
 # A global socket that listens for UPnP events
 our $sock;

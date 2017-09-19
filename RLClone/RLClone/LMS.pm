@@ -1,4 +1,4 @@
-package Plugins::RemoteLibraryEncore::LMS;
+package Plugins::RLClone::LMS;
 
 # Logitech Media Server Copyright 2001-2016 Logitech.
 # This program is free software; you can redistribute it and/or
@@ -19,15 +19,15 @@ use JSON::XS::VersionOneAndTwo;
 use MIME::Base64 qw(encode_base64 decode_base64);
 
 use Slim::Menu::BrowseLibrary;
-use Plugins::RemoteLibraryEncore::ProtocolHandler;
+use Plugins::RLClone::ProtocolHandler;
 
 use Slim::Utils::Cache;
 use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(cstring string);
 
-my $prefs = preferences('plugin.remotelibraryencore');
-my $log   = logger('plugin.remotelibraryencore');
+my $prefs = preferences('plugin.rlclone');
+my $log   = logger('plugin.rlclone');
 
 my $knownBrowseMenus = {
 #	myMusic => 'mymusic.png',
@@ -63,17 +63,17 @@ sub init {
 	}, 'remoteLMS');
 
 	Slim::Player::ProtocolHandlers->registerHandler(
-		lms => 'Plugins::RemoteLibraryEncore::ProtocolHandler'
+		lms => 'Plugins::RLClone::ProtocolHandler'
 	);
 
 	# Custom proxy to let the remote server handle the resizing.
 	# The remote server very likely already has pre-cached artwork.
 	Slim::Web::ImageProxy->registerHandler(
-		match => qr/remotelibraryencore\/[0-9a-z\-]{36}/i,
+		match => qr/rlclone\/[0-9a-z\-]{36}/i,
 		func  => sub {
 			my ($url, $spec) = @_;
 
-			my ($remote_library, $remote_url) = $url =~ m|remotelibraryencore/(.*?)/(.*)|;
+			my ($remote_library, $remote_url) = $url =~ m|rlclone/(.*?)/(.*)|;
 
 			my $baseUrl = $class->baseUrl($remote_library);
 
@@ -89,7 +89,7 @@ sub init {
 	# tell Slim::Menu::BrowseLibrary where to get information for remote libraries from
 	Slim::Menu::BrowseLibrary->setRemoteLibraryHandler($class);
 
-	Plugins::RemoteLibraryEncore::Plugin->addRemoteLibraryEncoreProvider($class);
+	Plugins::RLClone::Plugin->addRLCloneProvider($class);
 }
 
 sub getLibraryList {
@@ -128,7 +128,7 @@ sub getLibraryList {
 			name => $name,
 			type => 'link',
 			url  => \&_getRemoteMenu,
-			image => 'plugins/RemoteLibraryEncore/html/lms.png',
+			image => 'plugins/RemoteLibrary/html/lms.png',
 			passthrough => [{
 				remote_library => $uuid,
 			}],
@@ -341,7 +341,7 @@ sub proxiedImageUrl {
 	}
 
 	if ($image) {
-		return join('/', 'imageproxy', 'remotelibraryencore', $remote_library, $image, 'image.png');
+		return join('/', 'imageproxy', 'rlclone', $remote_library, $image, 'image.png');
 	}
 }
 
