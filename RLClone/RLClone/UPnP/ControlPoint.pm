@@ -5,14 +5,14 @@ package Plugins::RLClone::UPnP::ControlPoint;
 # modify it under the terms of the GNU General Public License,
 # version 2.
 
-# An asynchronous UPnP Control Point 
+# An asynchronous UPnP Control Point
 
 use strict;
 
 use IO::Socket qw(:DEFAULT :crlf);
 use HTML::Entities;
-use Net::UPnP;
-use Net::UPnP::Device;
+use Plugins::RLClone::UPnPLib;
+use Plugins::RLClone::UPnPLib::Device;
 use IO::String;
 use Socket;
 
@@ -42,13 +42,13 @@ my $failedDevices = {};
 # Search for all devices on the network
 sub search {
 	my ( $class, $args ) = @_;
-	
+
 	my $st = $args->{deviceType} || 'upnp:rootdevice';   # search string
 	my $mx = $args->{mx} || 3;                           # max wait
-	
-	my $mcast_addr = $Net::UPnP::SSDP_ADDR . ':' . $Net::UPnP::SSDP_PORT;
-	
-	my $ssdp_header = 
+
+	my $mcast_addr = $Plugins::RLClone::UPnPLib::SSDP_ADDR . ':' . $Plugins::RLClone::UPnPLib::SSDP_PORT;
+
+	my $ssdp_header =
 qq{M-SEARCH * HTTP/1.1
 Host: $mcast_addr
 Man: "ssdp:discover"
@@ -58,9 +58,9 @@ MX: $mx
 };
 
 	$ssdp_header =~ s/\r?\n/\015\012/g;
-	
+
 	$sock = Slim::Networking::Async::Socket::UDP->new(
-		LocalPort => $Net::UPnP::SSDP_PORT,
+		LocalPort => $Plugins::RLClone::UPnPLib::SSDP_PORT,
 		ReuseAddr => 1,
 	);
 
@@ -72,14 +72,14 @@ MX: $mx
 
 	# listen for multicasts on this socket
 	$sock->mcast_add( $mcast_addr );
-	
+
 	# save arguments in socket
 	$sock->set( args => $args );
-	
+
 	# This socket will continue to live and receive events as
 	# long as the server is running
 	Slim::Networking::Select::addRead( $sock, \&_readResult );
-	
+
 	# send the search query
 	$sock->mcast_send( $ssdp_header, $mcast_addr );
 }
@@ -87,15 +87,15 @@ MX: $mx
 # Stop listening for UPnP events
 sub shutdown {
 	my $class = shift;
-	
+
 	if ( defined $sock ) {
 		Slim::Networking::Select::removeRead( $sock );
-	
+
 		$sock->close;
-	
+
 		$sock = undef;
 	}
-	
+
 	while ( my ($udn, $device) = each %{$devices} ) {
 		removeDevice( $device );
 	}
@@ -104,7 +104,7 @@ sub shutdown {
 # A way for other code to remove a device
 sub removeDevice {
 	my ( $device, $callback ) = @_;
-	
+
 	if ( main::DEBUGLOG && $log->is_debug ) {
 		$log->debug("Device went away: " . $device->getfriendlyname);
 	}
@@ -119,33 +119,33 @@ sub removeDevice {
 
 sub _readResult {
 	my $sock = shift;
-	
+
 	my $ssdp_res_msg;
-	
+
 	my $addr = recv( $sock, $ssdp_res_msg, 4096, 0 );
 
 	if ( !defined $addr ) {
 		$log->warn("Read search result failed: $!");
 		return;
 	}
-	
+
 	return unless ( $ssdp_res_msg =~ m/LOCATION[ :]+(.*)\r/i );
 	my $dev_location = $1;
-	
+
 	# Some UPnP devices report a Location of '*' (Xbox 360), so we must check for a proper URL
 	return unless $dev_location =~ /^http/i;
-	
+
 	my ($USN) = $ssdp_res_msg =~ m/USN[ :]+(.*)\r/i;
 	my ($udn) = _parseUSNHeader( $USN );
-	
+
 	my $args = $sock->get( 'args' );
-	
+
 	if ( $ssdp_res_msg =~ m/NOTIFY/i ) {
 		# notify requests
-		
+
 		# status message (alive/byebye)
 		my ($NTS) = $ssdp_res_msg =~ m/NTS[ :]+(.*)\r/i;
-		
+
 		# ignore failed devices
 		if ( my $retry = $failedDevices->{ $dev_location } ) {
 			if ( time < $retry ) {
@@ -163,7 +163,7 @@ sub _readResult {
 				delete $failedDevices->{ $dev_location };
 			}
 		}
-		
+
 		if ( my $device = $devices->{ $udn } ) {
 			# existing device, check for byebye messages
 			if ( $NTS =~ /byebye/ ) {
@@ -173,19 +173,19 @@ sub _readResult {
 		else {
 			if ( $NTS =~ /alive/ ) {
 				# new device, add it
-			
+
 				# get the device description if we haven't seen this location before
 				if ( !$deviceLocations->{ $dev_location } ) {
-				
+
 					$deviceLocations->{ $dev_location } = 1;
-				
-					my $device = Net::UPnP::Device->new();
+
+					my $device = Plugins::RLClone::UPnPLib::Device->new();
 					$device->setssdp( $ssdp_res_msg );
-					
+
 					if ( main::DEBUGLOG && $log->is_debug ) {
 						$log->debug(sprintf("Notify from new device [%s at %s]", $USN, $dev_location));
 					}
-		
+
 					# make an async request for the device description XML document
 					_getDeviceDescription( {
 						device   => $device,
@@ -197,15 +197,15 @@ sub _readResult {
 			}
 		}
 	}
-	
+
 	# Responses to our initial search query will contain ST: <string we searched for>
 	elsif ( my ($st) = $ssdp_res_msg =~ m/ST[ :]+(.*)\r/i ) {
-		
+
 		if ( $st eq $args->{deviceType} ) {
-		
-			my $device = Net::UPnP::Device->new();
+
+			my $device = Plugins::RLClone::UPnPLib::Device->new();
 			$device->setssdp( $ssdp_res_msg );
-		
+
 			# make an async request for the device description XML document
 			_getDeviceDescription( {
 				device   => $device,
@@ -219,10 +219,10 @@ sub _readResult {
 
 sub _getDeviceDescription {
 	my $args = shift;
-	
+
 	if ( !$deviceRequests->{ $args->{location} } ) {
 		$deviceRequests->{ $args->{location} } = 1;
-	
+
 		my $http = Slim::Networking::SimpleAsyncHTTP->new(
 			\&_gotDeviceDescription,
 			\&_gotError,
@@ -238,24 +238,24 @@ sub _getDeviceDescription {
 sub _gotDeviceDescription {
 	my $http = shift;
 	my $args = $http->params('args');
-	
+
 	delete $deviceRequests->{ $args->{location} };
-	
+
 	my $device = $args->{device};
 	$device->setdescription( $http->content );
-	
+
 	my $udn = $device->getudn;
-	
+
 	# is it new?
 	if ( !$devices->{ $udn } ) {
-		
+
 		if ( main::DEBUGLOG && $log->is_debug ) {
 			$log->debug(sprintf("New device found: %s [%s]",
 				$device->getfriendlyname,
 				$device->getlocation,
 			));
 		}
-		
+
 		# add the device to our list of known devices
 		$devices->{ $udn } = $device;
 
@@ -269,13 +269,13 @@ sub _gotError {
 	my $http  = shift;
 	my $error = $http->error;
 	my $args  = $http->params('args');
-	
+
 	delete $deviceRequests->{ $args->{location} };
 	delete $deviceLocations->{ $args->{location} };
-	
+
 	# keep track of failures
 	$failedDevices->{ $args->{location} } = time + FAILURE_RETRY_TIME;
-	
+
 	$log->error("Error retrieving device description: $error");
 }
 
@@ -309,10 +309,10 @@ sub _parseUSNHeader {
 
 sub browse {
 	my ( $class, $args ) = @_;
-	
+
 	if ( my $device = $devices->{ $args->{udn} } ) {
 		my ( $url, $action, $content ) = $class->_soap_request( $device, "Browse", $args );
-	
+
 		my $http = Slim::Networking::SimpleAsyncHTTP->new(
 			\&gotResponse,
 			\&gotError,
@@ -320,11 +320,11 @@ sub browse {
 				args => $args,
 			}
 		);
-	
-		$http->post( 
+
+		$http->post(
 			$url,
 			'Content-Type' => 'text/xml; charset="utf-8"',
-			SOAPACTION     => $action, 
+			SOAPACTION     => $action,
 			$content
 		);
 	}
@@ -333,12 +333,12 @@ sub browse {
 sub gotResponse {
 	my $http = shift;
 	my $args = $http->params('args');
-	
+
 	# To save memory, we return only a filehandle
 	my $contentRef = $http->contentRef;
 	HTML::Entities::decode( $$contentRef );
 	my $io = IO::String->new( $contentRef );
-	
+
 	my $callback    = $args->{callback};
 	my $passthrough = $args->{passthrough} || [];
 	$callback->( $io, @{$passthrough} );
@@ -346,34 +346,34 @@ sub gotResponse {
 
 sub gotError {
 	my $http = shift;
-	
+
 	my $args  = $http->params('args');
 	my $error = $http->error;
 	my $url   = $http->url;
-	
+
 	logger("")->error("Error retrieving $url: $error");
-	
+
 	my $callback    = $args->{callback};
 	my $passthrough = $args->{passthrough} || [];
 	$callback->( undef, @{$passthrough} );
 }
 
 # Build a SOAP request by hand
-# Based on Net::UPnP::Service::postaction
+# Based on Plugins::RLClone::UPnPLib::Service::postaction
 sub _soap_request {
 	my ( $class, $device, $action_name, $action_arg ) = @_;
-	
+
 	my $service = $device->getservicebyname( $action_arg->{service} );
 
 	my $ctrl_url = $service->getposturl();
-	
+
 	# Make sure we don't have double-slashes in the URL
 	my $uri = URI->new($ctrl_url)->canonical;
 	my $path_query = $uri->path_query;
 	$path_query =~ s{//}{/}g;
 	$uri->path_query($path_query);
 	$ctrl_url = $uri->as_string;
-	
+
 	my $service_type = $service->getservicetype();
 	my $soap_action = "\"" . $service_type . "#" . $action_name . "\"";
 
@@ -385,11 +385,11 @@ sub _soap_request {
 
 	if ( ref $action_arg ) {
 		while ( my ($arg_name, $arg_value) = each %{$action_arg} ) {
-			
-			# skip internal items that don't belong in a SOAP request 
+
+			# skip internal items that don't belong in a SOAP request
 			# (anything not starting with a capital letter)
 			next if $arg_name !~ /^[A-Z]/;
-			
+
 			if ( length($arg_value) <= 0 ) {
 				$soap_content .= qq{         <$arg_name />} . "\n";
 				next;

@@ -9,8 +9,19 @@
             <desc lang="EN">RemoteLibrary for Encore Modified</desc>
             <url>http://pcfi.dothome.co.kr/RLClone.zip</url>
             <link>https://bitbucket.org/madenmud/encoreplugin</link>
-            <sha>43f2f1b9af11ecf88e617f773c0a3eb34e482ca6</sha>
+            <sha>ccdb7bb0a7c569d5d5a161a89679dad4190057ca</sha>
             <creator>Sunghyun</creator>
 		    </plugin>
+
+<!--
+    		    <plugin name="RLC" version="1.0" minTarget="7.5" maxTarget="*" >
+                <title lang="EN">RemoteLibray Clone.</title>
+                <desc lang="EN">RemoteLibrary for Encore Modified.</desc>
+                <url>http://pcfi.dothome.co.kr/RLC.zip</url>
+                <link>https://bitbucket.org/madenmud/encoreplugin</link>
+                <sha>e36b0e66b2a70b6db5dae0d08159e52426f03fa6</sha>
+                <creator>Sunghyun</creator>
+    		    </plugin>
+-->
     </plugins>
 </extensions>

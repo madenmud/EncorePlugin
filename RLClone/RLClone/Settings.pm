@@ -13,11 +13,13 @@ use Slim::Utils::Prefs;
 my $prefs = preferences('plugin.rlclone');
 
 sub name {
-	return Slim::Web::HTTP::CSRF->protectName('PLUGIN_REMOTE_LIBRARY_MODULE_NAME');
+#	return Slim::Web::HTTP::CSRF->protectName('PLUGIN_REMOTE_LIBRARY_MODULE_NAME');
+	return 'PLUGIN_REMOTE_LIBRARY_MODULE_NAME';
 }
 
 sub page {
-	return Slim::Web::HTTP::CSRF->protectURI('plugins/RemoteLibrary/settings.html');
+#	return Slim::Web::HTTP::CSRF->protectURI('plugins/RemoteLibrary/settings.html');
+	return 'plugins/RemoteLibrary/settings.html';
 }
 
 sub prefs {

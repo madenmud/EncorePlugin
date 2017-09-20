@@ -87,7 +87,7 @@ sub init {
 	);
 
 	# tell Slim::Menu::BrowseLibrary where to get information for remote libraries from
-	Slim::Menu::BrowseLibrary->setRemoteLibraryHandler($class);
+	#Slim::Menu::BrowseLibrary->setRemoteLibraryHandler($class);
 
 	Plugins::RLClone::Plugin->addRLCloneProvider($class);
 }
@@ -101,7 +101,9 @@ sub getLibraryList {
 	# locally discovered servers
 	my $servers = Slim::Networking::Discovery::Server::getServerList();
 	foreach ( keys %$servers ) {
-		$servers{ Slim::Networking::Discovery::Server::getServerUUID($_) } = $_;
+		#$servers{ Slim::Networking::Discovery::Server::getServerUUID($_) } = $_;
+		$servers{ Slim::Networking::Discovery::Server::getServerAddress($_) } = $_;
+		$log->error("Using remote IP insted of UUID");
 	}
 
 	my $otherServers = $prefs->get('remoteLMSDetails') || {};
